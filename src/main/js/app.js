@@ -128,13 +128,27 @@ class CreateDialog extends React.Component {
     constructor(props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.getInput = this.getInput.bind(this);
     }
 
     handleSubmit(e) {
         e.preventDefault();
-        var newUser = {};
+        const newUser = {};
         this.props.attributes.forEach(attribute => {
-            newUser[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+            if (attribute === "createdDate") {newUser[attribute] = new Date();}
+            else {
+            switch (ReactDOM.findDOMNode(this.refs[attribute]).type) {
+                case "checkbox":
+                    newUser[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).checked;
+                    break;
+                case "text":
+                    newUser[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+                    break;
+                default:
+                    console.log("type: " + ReactDOM.findDOMNode(this.refs[attribute]).type +
+                    ", attribute: " + attribute);
+            }
+        }
         });
         this.props.onCreate(newUser);
 
@@ -147,18 +161,30 @@ class CreateDialog extends React.Component {
         window.location = "#";
     }
 
+    getInput(attribute) {
+        switch (attribute) {
+            case "createdDate":
+                return (
+                    <iput type="hidden" value={new Date()} placeholder={attribute} ref={attribute} className="field"/>);
+                break;
+            case "admin":
+                return (<div>
+                    <input id="demo-copy" name="demo-copy" value="you" type="checkbox" ref={attribute}/>
+                    <label htmlFor="demo-copy">admin</label></div>);
+                break;
+            default:
+                return ( <input type="text" placeholder={attribute} ref={attribute} className="field"/>);
+        }
+    }
+
     render() {
         var inputs = this.props.attributes.map(attribute =>
-            <p key={attribute}>
-                <input type={attribute === "createdDate" ? "hidden" : "text"} placeholder={attribute} ref={attribute}
-                       className="field"/>
-            </p>
+            <div key={attribute}>{this.getInput(attribute)}</div>
         );
 
         return (
             <div>
-                <a href="#createUser">Create new user</a>
-
+                <a href="#createUser" id="createButton" className="button">Create new user</a>
                 <div id="createUser" className="modalDialog">
                     <div>
                         <a href="#" title="Close" className="close">X</a>
@@ -174,6 +200,7 @@ class CreateDialog extends React.Component {
             </div>
         )
     }
+
 
 }
 // end::create-dialog[]
@@ -249,9 +276,9 @@ class UserList extends React.Component {
         return (
             <div>
                 <div>
-                <label id="pageSizeLabel"htmlFor="pageSize"> Items on page: </label>
-                <input id="pageSize" type="text" ref="pageSize" defaultValue={this.props.pageSize}
-                       onInput={this.handleInput}/>
+                    <label id="pageSizeLabel" htmlFor="pageSize"> Items on page: </label>
+                    <input id="pageSize" type="text" ref="pageSize" defaultValue={this.props.pageSize}
+                           onInput={this.handleInput}/>
                 </div>
                 <table className="alt">
                     <tbody>
@@ -292,12 +319,11 @@ class User extends React.Component {
             <tr>
                 <td>{this.props.user.name}</td>
                 <td>{this.props.user.age}</td>
-                {(this.props.user.admin === true) ? <td align="center">&#10004;</td> : <td/>}
+                {(this.props.user.admin === true) ? <td>&#10004;</td> : <td/>}
                 <td>{this.props.user.createdDate}</td>
                 <td>
                     <button onClick={this.handleDelete}>Delete</button>
                 </td>
-                {console.log(String(this.props.user.admin))}
             </tr>
         )
     }
