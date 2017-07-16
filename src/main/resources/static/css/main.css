@@ -1920,6 +1920,7 @@
 		white-space: nowrap;
 	}
 
+
 		input[type="submit"]:hover,
 		input[type="reset"]:hover,
 		input[type="button"]:hover,
@@ -2584,17 +2585,30 @@
 }
 
 .close:hover { background: #00d9ff; }
-#pageSize {
-	width: 4em;
-	margin: 0.5em 0.5em;
+
+.customInput {
+	appearance: none;
+	background: #6cc091;
+	border-radius: 10px;
+	border: none;
+	border: solid 2px #8dcca9;
+	color: #fff;
+	display: inline;
+	outline: 0;
+	padding: 0 1em;
+	margin: 1em 1em;
+	text-decoration: none;
+	width: 10%;
 }
-#pageSizeLabel{
-	float: left;
-	padding: 0.75em 0.75em;
+
+
+.inline{
+	padding: 0.2em 0.75em;
 }
+
 #nameColumn{
 	width: 20%;
 }
-#createButton{
+.customMargin{
 	margin: 1em 1em;
 }

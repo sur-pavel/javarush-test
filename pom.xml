@@ -67,6 +67,16 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -79,7 +89,7 @@
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.2</version>
+				<version>1.4</version>
 				<configuration>
 					<installDirectory>target</installDirectory>
 				</configuration>
@@ -90,8 +100,8 @@
 							<goal>install-node-and-npm</goal>
 						</goals>
 						<configuration>
-							<nodeVersion>v4.4.5</nodeVersion>
-							<npmVersion>3.9.2</npmVersion>
+							<nodeVersion>v6.11.1</nodeVersion>
+							<npmVersion>5.2.0</npmVersion>
 						</configuration>
 					</execution>
 					<execution>

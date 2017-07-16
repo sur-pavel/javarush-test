@@ -1,7 +1,7 @@
 'use strict';
 
 const React = require('react');
-const ReactDOM = require('react-dom')
+const ReactDOM = require('react-dom');
 const client = require('./client');
 
 const follow = require('./follow'); // function to hop multiple links by "rel"
@@ -13,9 +13,10 @@ class App extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {users: [], attributes: [], pageSize: 2, links: {}};
+        this.state = {users: [], attributes: [], pageSize: 5, links: {}};
         this.updatePageSize = this.updatePageSize.bind(this);
         this.onCreate = this.onCreate.bind(this);
+        this.onEdit = this.onEdit.bind(this);
         this.onDelete = this.onDelete.bind(this);
         this.onNavigate = this.onNavigate.bind(this);
     }
@@ -67,6 +68,29 @@ class App extends React.Component {
     }
 
     // end::create[]
+
+    // tag::edit[]
+    onEdit(editUser) {
+        follow(client, root, ['users']).then(userCollection => {
+            return client({
+                method: 'PUT',
+                path: userCollection.entity._links.self.href,
+                entity: editUser,
+                headers: {'Content-Type': 'application/json'}
+            })
+        }).then(response => {
+            return follow(client, root, [
+                {rel: 'users', params: {'size': this.state.pageSize}}]);
+        }).done(response => {
+            if (typeof response.entity._links.last != "undefined") {
+                this.onNavigate(response.entity._links.last.href);
+            } else {
+                this.onNavigate(response.entity._links.self.href);
+            }
+        });
+    }
+
+    // end::edit[ ]
 
     // tag::delete[]
     onDelete(user) {
@@ -135,20 +159,22 @@ class CreateDialog extends React.Component {
         e.preventDefault();
         const newUser = {};
         this.props.attributes.forEach(attribute => {
-            if (attribute === "createdDate") {newUser[attribute] = new Date();}
-            else {
-            switch (ReactDOM.findDOMNode(this.refs[attribute]).type) {
-                case "checkbox":
-                    newUser[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).checked;
-                    break;
-                case "text":
-                    newUser[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
-                    break;
-                default:
-                    console.log("type: " + ReactDOM.findDOMNode(this.refs[attribute]).type +
-                    ", attribute: " + attribute);
+            if (attribute === "createdDate") {
+                newUser[attribute] = new Date();
             }
-        }
+            else {
+                switch (ReactDOM.findDOMNode(this.refs[attribute]).type) {
+                    case "checkbox":
+                        newUser[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).checked;
+                        break;
+                    case "text":
+                        newUser[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+                        break;
+                    default:
+                        console.log("type: " + ReactDOM.findDOMNode(this.refs[attribute]).type +
+                            ", attribute: " + attribute);
+                }
+            }
         });
         this.props.onCreate(newUser);
 
@@ -184,7 +210,7 @@ class CreateDialog extends React.Component {
 
         return (
             <div>
-                <a href="#createUser" id="createButton" className="button">Create new user</a>
+                <a href="#createUser" className="button customMargin">Create new user</a>
                 <div id="createUser" className="modalDialog">
                     <div>
                         <a href="#" title="Close" className="close">X</a>
@@ -256,7 +282,7 @@ class UserList extends React.Component {
     // tag::user-list-render[]
     render() {
         var users = this.props.users.map(user =>
-            <User key={user._links.self.href} user={user} onDelete={this.props.onDelete}/>
+            <User key={user._links.self.href} user={user} onEdit={this.props.onEdit} onDelete={this.props.onDelete}/>
         );
 
         var navLinks = [];
@@ -275,10 +301,23 @@ class UserList extends React.Component {
 
         return (
             <div>
-                <div>
-                    <label id="pageSizeLabel" htmlFor="pageSize"> Items on page: </label>
-                    <input id="pageSize" type="text" ref="pageSize" defaultValue={this.props.pageSize}
-                           onInput={this.handleInput}/>
+                <div className="row">
+                    <div className="3u 6u(medium)">
+                        <input id="pageSize" type="text" ref="pageSize" placeholder="items on page"
+                               onInput={this.handleInput}/>
+                    </div>
+                    <div className="2u 12u$(small)">
+                        <div className="select-wrapper">
+                            <select>
+                                <option value="">- Search by -</option>
+                                <option value="1">Name</option>
+                                <option value="1">Age</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="3u 12u$(small)">
+                        <input id="searchInput" type="text" placeholder="Enter name"/>
+                    </div>
                 </div>
                 <table className="alt">
                     <tbody>
@@ -286,7 +325,8 @@ class UserList extends React.Component {
                         <th id="nameColumn">Name</th>
                         <th>Age</th>
                         <th>Admin</th>
-                        <th>CreatedDate</th>
+                        <th>Created Date</th>
+                        <th/>
                         <th/>
                     </tr>
                     {users}
@@ -310,6 +350,11 @@ class User extends React.Component {
         this.handleDelete = this.handleDelete.bind(this);
     }
 
+    handleEdit() {
+        this.props.onEdit(this.props.user);
+    }
+
+
     handleDelete() {
         this.props.onDelete(this.props.user);
     }
@@ -321,6 +366,9 @@ class User extends React.Component {
                 <td>{this.props.user.age}</td>
                 {(this.props.user.admin === true) ? <td>&#10004;</td> : <td/>}
                 <td>{this.props.user.createdDate}</td>
+                <td>
+                    <button onClick={this.handleEdit}>Edit</button>
+                </td>
                 <td>
                     <button onClick={this.handleDelete}>Delete</button>
                 </td>

@@ -2,9 +2,12 @@ package ru.sur_pavel.domain;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class User {
+
+
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
@@ -23,8 +26,9 @@ public class User {
         setCreatedDate();
     }
 
-    public Timestamp getCreatedDate() {
-        return createdDate;
+    public String getCreatedDate() {
+        String s = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(this.createdDate);
+        return s;
     }
 
     public void setCreatedDate() {

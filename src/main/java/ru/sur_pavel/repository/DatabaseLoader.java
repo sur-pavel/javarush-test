@@ -18,6 +18,9 @@ package ru.sur_pavel.repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import ru.sur_pavel.domain.User;
+
+import java.util.Random;
 
 @Component
 public class DatabaseLoader implements CommandLineRunner {
@@ -625,14 +628,12 @@ public class DatabaseLoader implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-/*
         for (String character : characters) {
             Random random = new Random();
             boolean isAdmin = random.nextBoolean();
             int age = random.nextInt(100);
             this.repository.save(new User(character, age, isAdmin));
         }
-*/
 
     }
 }
